@@ -90,6 +90,16 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.addressables.android": {
+      "version": "1.0.9",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.addressables": "2.3.16",
+        "com.unity.modules.androidjni": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.bindings.openimageio": {
       "version": "1.0.1",
       "depth": 1,
