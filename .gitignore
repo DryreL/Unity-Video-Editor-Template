@@ -72,3 +72,4 @@ crashlytics-build.properties
 
 # Ignore exported files
 /Recordings
+/.vscode
