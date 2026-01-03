@@ -61,7 +61,7 @@ namespace UnityEngine.Timeline
 
                 if (videoFrame.width != rt.width || videoFrame.height != rt.height)
                 {
-                    videoFrame.Resize(rt.width, rt.height);
+                    videoFrame.Reinitialize(rt.width, rt.height);
                 }
                 RenderTexture.active = rt;
                 videoFrame.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
