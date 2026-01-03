@@ -7670,6 +7670,82 @@ Transform:
   - {fileID: 1695414897}
   m_Father: {fileID: 1690281546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &655792742
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 655792745}
+  - component: {fileID: 655792744}
+  - component: {fileID: 655792743}
+  m_Layer: 0
+  m_Name: SignalReceiver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &655792743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655792742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6abcaa40ad00d7d4982be0502aee1042, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExampleSignalLogger
+  label: Signal received!
+--- !u!114 &655792744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655792742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 905ba3deab6dbd64c8f99d382d515658, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 655792743}
+          m_TargetAssemblyTypeName: ExampleSignalLogger, Assembly-CSharp
+          m_MethodName: LogSignal
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!4 &655792745
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655792742}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.28922, y: -2.3724, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &656924067
 GameObject:
   m_ObjectHideFlags: 0
@@ -15935,7 +16011,6 @@ GameObject:
   - component: {fileID: 1327492506}
   - component: {fileID: 1327492502}
   - component: {fileID: 1327492507}
-  - component: {fileID: 1327492508}
   m_Layer: 5
   m_Name: JellyfishVideo
   m_TagString: Untagged
@@ -16048,40 +16123,6 @@ VideoPlayer:
   m_Enabled: 1
   m_VideoClip: {fileID: 32900000, guid: a1629290f29ff574fa28aba04d4fe4e5, type: 3}
   m_TargetCameraAlpha: 0
-  m_TargetCamera3DLayout: 0
-  m_TargetCamera: {fileID: 0}
-  m_TargetTexture: {fileID: 0}
-  m_TimeReference: 0
-  m_TargetMaterialRenderer: {fileID: 0}
-  m_TargetMaterialProperty: <noninit>
-  m_RenderMode: 2
-  m_AspectRatio: 2
-  m_DataSource: 0
-  m_TimeUpdateMode: 2
-  m_PlaybackSpeed: 1
-  m_AudioOutputMode: 2
-  m_TargetAudioSources: []
-  m_DirectAudioVolumes: []
-  m_Url: 
-  m_EnabledAudioTracks: 
-  m_DirectAudioMutes: 
-  m_ControlledAudioTrackCount: 0
-  m_PlayOnAwake: 0
-  m_SkipOnDrop: 1
-  m_Looping: 0
-  m_WaitForFirstFrame: 1
-  m_FrameReadyEventEnabled: 0
-  m_VideoShaders: []
---- !u!328 &1327492508
-VideoPlayer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1327492500}
-  m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: a1629290f29ff574fa28aba04d4fe4e5, type: 3}
-  m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
   m_TargetTexture: {fileID: 0}
@@ -18694,6 +18735,8 @@ PlayableDirector:
     value: {fileID: 544836653}
   - key: {fileID: 0}
     value: {fileID: 544836653}
+  - key: {fileID: -9164519790670576506, guid: 2e20751e28d7252439c7696d03e1c760, type: 2}
+    value: {fileID: 655792744}
   m_ExposedReferences:
     m_References:
     - 20411f412a39b604ba7c511e54dff238: {fileID: 372992297}
@@ -23061,3 +23104,4 @@ SceneRoots:
   - {fileID: 1190829971}
   - {fileID: 1648810286}
   - {fileID: 993698159}
+  - {fileID: 655792745}

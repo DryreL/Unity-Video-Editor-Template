@@ -1,5 +1,29 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9164519790670576506
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b46e36075dd1c124a8422c228e75e1fb, type: 3}
+  m_Name: Signal Track
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips: []
+  m_Markers:
+    m_Objects:
+    - {fileID: 8013263133548806589}
 --- !u!114 &-9058344176463990849
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1132,6 +1156,7 @@ MonoBehaviour:
   - {fileID: 6618447540995333186}
   - {fileID: 8161667013822902531}
   - {fileID: -1221007337686833887}
+  - {fileID: -9164519790670576506}
   m_FixedDuration: 139.066666666667
   m_EditorSettings:
     m_Framerate: 60
@@ -1744,7 +1769,7 @@ MonoBehaviour:
   m_Name: RecorderClip
   m_EditorClassIdentifier: 
   enabled: 1
-  take: 249
+  take: 250
   captureEveryNthFrame: 1
   fileNameGenerator:
     m_Path:
@@ -3112,6 +3137,22 @@ MonoBehaviour:
     m_DisplayName: Avatar2
   m_Markers:
     m_Objects: []
+--- !u!114 &8013263133548806589
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c38f6fa1940124db1ab7f6fe7268d1, type: 3}
+  m_Name: Signal Emitter
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalEmitter
+  m_Time: 9.883333333333333
+  m_Retroactive: 0
+  m_EmitOnce: 0
+  m_Asset: {fileID: 11400000, guid: 905ba3deab6dbd64c8f99d382d515658, type: 2}
 --- !u!114 &8161667013822902531
 MonoBehaviour:
   m_ObjectHideFlags: 1
