@@ -13,6 +13,13 @@ public class LightControlDrawer : PropertyDrawer
 
     public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
     {
+        // Support dark/light mode for label text
+        Color originalLabelColor = GUI.color;
+        if (!EditorGUIUtility.isProSkin)
+        {
+            GUI.color = new Color(0, 0, 0, 1); // Black for light mode
+        }
+        
         SerializedProperty colorProp = property.FindPropertyRelative("color");
         SerializedProperty intensityProp = property.FindPropertyRelative("intensity");
         SerializedProperty bounceIntensityProp = property.FindPropertyRelative("bounceIntensity");
@@ -29,5 +36,7 @@ public class LightControlDrawer : PropertyDrawer
         
         singleFieldRect.y += EditorGUIUtility.singleLineHeight;
         EditorGUI.PropertyField(singleFieldRect, rangeProp);
+        
+        GUI.color = originalLabelColor;
     }
 }

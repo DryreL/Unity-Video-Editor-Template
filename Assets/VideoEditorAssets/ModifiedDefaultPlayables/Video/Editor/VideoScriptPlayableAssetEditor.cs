@@ -23,6 +23,12 @@ public class VideoScriptPlayableAssetEditor : Editor
     {
         VideoScriptPlayableAsset videoAsset = (VideoScriptPlayableAsset)target;
         GUIStyle lStyle = GetLabelStyle();
+        
+        // Ensure label color is set for dark/light mode compatibility
+        if (lStyle.normal.textColor == Color.black)
+        {
+            lStyle.normal.textColor = EditorGUIUtility.isProSkin ? Color.white : Color.black;
+        }
 
         GUILayout.Label("UI RawImage to play the video on:", lStyle);
         EditorGUILayout.PropertyField(rawImage);
@@ -79,6 +85,8 @@ public class VideoScriptPlayableAssetEditor : Editor
     {
         GUIStyle labelStyle = new GUIStyle();
         labelStyle.wordWrap = true;
+        // Support both light and dark modes
+        labelStyle.normal.textColor = EditorGUIUtility.isProSkin ? Color.white : Color.black;
         return labelStyle;
     }
 }

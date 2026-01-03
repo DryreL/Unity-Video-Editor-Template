@@ -11,8 +11,14 @@ public static class LayoutUtility
 
     static MethodInfo GetMethod(MethodType method_type)
     {
-
-        Type layout = Type.GetType("UnityEditor.WindowLayout,UnityEditor");
+        // In Unity 6, WindowLayout moved to UnityEditor.WindowLayout namespace
+        Type layout = Type.GetType("UnityEditor.WindowLayout,UnityEditor.CoreModule");
+        
+        // Fallback for older Unity versions
+        if (layout == null)
+        {
+            layout = Type.GetType("UnityEditor.WindowLayout,UnityEditor");
+        }
 
         MethodInfo save = null;
         MethodInfo load = null;
@@ -37,13 +43,29 @@ public static class LayoutUtility
     public static void SaveLayout(string path)
     {
         path = Path.Combine(Directory.GetCurrentDirectory(), path);
-        GetMethod(MethodType.Save).Invoke(null, new object[] { path });
+        var method = GetMethod(MethodType.Save);
+        if (method != null)
+        {
+            method.Invoke(null, new object[] { path });
+        }
+        else
+        {
+            Debug.LogWarning("SaveLayout method not found. Window layout could not be saved.");
+        }
     }
 
     public static void LoadLayout(string path)
     {
         path = Path.Combine(Directory.GetCurrentDirectory(), path);
-        GetMethod(MethodType.Load).Invoke(null, new object[] { path, false });
+        var method = GetMethod(MethodType.Load);
+        if (method != null)
+        {
+            method.Invoke(null, new object[] { path, false });
+        }
+        else
+        {
+            Debug.LogWarning("LoadLayout method not found. Window layout could not be loaded.");
+        }
     }
 
 }

@@ -38,11 +38,11 @@ public class VideoEditorWelcomeWindow : EditorWindow
 
     public void OnGUI()
     {
-        scrollPos = GUILayout.BeginScrollView(scrollPos);
-
         GUIStyle hStyle = GetHeadingStyle();
         GUIStyle pStyle = GetParagraphStyle();
         GUIStyle bStyle = GetButtonStyle();
+        
+        scrollPos = GUILayout.BeginScrollView(scrollPos);
 
         GUILayout.Label("Unity Video Editor Template", hStyle);
         GUILayout.Label("Thank you for downloading the Video Editor Template.", pStyle);
@@ -65,9 +65,26 @@ public class VideoEditorWelcomeWindow : EditorWindow
         GUILayout.EndVertical();
         if (GUILayout.Button("Set Resolution", SetResButtonStyle(), GUILayout.Height(42)))
         {
+            // MP4 format requires even dimensions
+            int adjustedWidth = (width % 2 == 0) ? width : width + 1;
+            int adjustedHeight = (height % 2 == 0) ? height : height + 1;
+            
+            if (adjustedWidth != width || adjustedHeight != height)
+            {
+                width = adjustedWidth;
+                height = adjustedHeight;
+                UnityEngine.Debug.LogWarning($"Resolution adjusted to even dimensions for MP4 compatibility: {width}x{height}");
+            }
+            
             GameViewUtils.AddSetSize(width, height);
         }
         GUILayout.EndHorizontal();
+        
+        GUIStyle noteStyle = new GUIStyle(pStyle);
+        noteStyle.fontSize = 11;
+        noteStyle.fontStyle = FontStyle.Italic;
+        noteStyle.normal.textColor = EditorGUIUtility.isProSkin ? new Color(0.8f, 0.8f, 0.8f) : new Color(0.3f, 0.3f, 0.3f);
+        GUILayout.Label("Note: MP4 format requires even dimensions. Odd values will be automatically adjusted.", noteStyle);
 
 
         GUILayout.Label("See the sample scene for example use. Specifically look at the 'GlobalTimeline' object. To export the video simply enter playmode and wait. You do not need to build anything! To see the video output settings look at the RecorderClip on in the Timeline of the 'GlobalTimeline' object.", pStyle);
@@ -80,7 +97,7 @@ public class VideoEditorWelcomeWindow : EditorWindow
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("YouTube Tutorials", bStyle))
         {
-            Application.OpenURL(VideoEditorConstants.WindowLayoutPath);
+            Application.OpenURL(VideoEditorConstants.YouTubeLink);
         }
         if (GUILayout.Button("Blog Post (written documentation)", bStyle))
         {
@@ -135,6 +152,9 @@ public class VideoEditorWelcomeWindow : EditorWindow
         GUIStyle headingStyle = new GUIStyle();
         headingStyle.fontSize = 20;
         headingStyle.padding = new RectOffset(10, 10, 10, 10);
+        headingStyle.fontStyle = FontStyle.Bold;
+        // Support both light and dark modes
+        headingStyle.normal.textColor = EditorGUIUtility.isProSkin ? Color.white : Color.black;
         return headingStyle;
     }
 
@@ -144,6 +164,8 @@ public class VideoEditorWelcomeWindow : EditorWindow
         paraStyle.fontSize = 14;
         paraStyle.padding = new RectOffset(10, 10, 10, 10);
         paraStyle.wordWrap = true;
+        // Support both light and dark modes
+        paraStyle.normal.textColor = EditorGUIUtility.isProSkin ? Color.white : Color.black;
         return paraStyle;
     }
 
@@ -159,6 +181,7 @@ public class VideoEditorWelcomeWindow : EditorWindow
         var windows = Resources.FindObjectsOfTypeAll(containerWinType);
         foreach (var win in windows)
         {
+            if (win == null) continue;
             var showmode = (int)showModeField.GetValue(win);
             if (showmode == 4) // main window
             {

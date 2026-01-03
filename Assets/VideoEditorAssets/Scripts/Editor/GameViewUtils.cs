@@ -17,8 +17,20 @@ public static class GameViewUtils
         gameViewSizesInstance = instanceProp.GetValue(null, null);
     }
 
+    /// <summary>
+    /// Ensures the value is even (required for MP4/H.264 encoding)
+    /// </summary>
+    private static int MakeEven(int value)
+    {
+        return (value % 2 == 0) ? value : value + 1;
+    }
+
     public static void AddSetSize(int width, int height)
     {
+        // MP4 format requires even dimensions for H.264 codec
+        width = MakeEven(width);
+        height = MakeEven(height);
+        
         int idx = FindSize(GameViewSizeGroupType.Standalone, width, height);
         if (idx == -1)
         {
@@ -58,25 +70,24 @@ public static class GameViewUtils
         var group = GetGroup(sizeGroupType);
         var addCustomSize = getGroup.ReturnType.GetMethod("AddCustomSize"); // or group.GetType().
         var gvsType = typeof(Editor).Assembly.GetType("UnityEditor.GameViewSize");
-#if NET_4_6
-        var ctor = gvsType.GetConstructor(new Type[] { typeof(Editor).Assembly.GetType("UnityEditor.GameViewSizeType"), typeof(int), typeof(int), typeof(string) });
-        var newGvsType = typeof(Editor).Assembly.GetType("UnityEditor.GameViewSizeType");
-        if (viewSizeType == GameViewSizeType.AspectRatio)
+        
+        // Unity 6 and modern Unity versions use the constructor with GameViewSizeType enum
+        var gvsTypeEnum = typeof(Editor).Assembly.GetType("UnityEditor.GameViewSizeType");
+        var ctor = gvsType.GetConstructor(new Type[] { gvsTypeEnum, typeof(int), typeof(int), typeof(string) });
+        
+        if (ctor != null)
         {
-            newGvsType = typeof(Editor).Assembly.GetType("UnityEditor.GameViewSizeType.AspectRatio");
+            // Modern Unity version with enum parameter
+            var newSize = ctor.Invoke(new object[] { (int)viewSizeType, width, height, text });
+            addCustomSize.Invoke(group, new object[] { newSize });
         }
         else
         {
-            newGvsType = typeof(Editor).Assembly.GetType("UnityEditor.GameViewSizeType.FixedResolution");
+            // Fallback for older Unity versions with int parameter
+            ctor = gvsType.GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(string) });
+            var newSize = ctor.Invoke(new object[] { (int)viewSizeType, width, height, text });
+            addCustomSize.Invoke(group, new object[] { newSize });
         }
-
-        var newSize = ctor.Invoke(new object[] { (int)viewSizeType, width, height, text });
-        addCustomSize.Invoke(group, new object[] { newSize });
-#else
-        var ctor = gvsType.GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(string) });
-        var newSize = ctor.Invoke(new object[] { (int)viewSizeType, width, height, text });
-        addCustomSize.Invoke(group, new object[] { newSize });
-#endif
     }
 
     public static bool SizeExists(GameViewSizeGroupType sizeGroupType, string text)
