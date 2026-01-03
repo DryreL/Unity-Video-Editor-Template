@@ -4,16 +4,30 @@ using UnityEngine.Playables;
 using UnityEngine.Video;
 using UnityEngine.UI;
 using System.Diagnostics;
+using System.IO;
 
 namespace UnityEngine.Timeline
 {
+	[System.Serializable]
+	public enum VideoSourceMode
+	{
+		VideoClip,
+		StreamingAssetURL
+	}
+
 	[Serializable]
     public class VideoScriptPlayableAsset : PlayableAsset
 	{
         public ExposedReference<RawImage> image;
 
-        [SerializeField, NotKeyable]
+		[SerializeField, NotKeyable]
 		public VideoClip videoClip;
+
+		[SerializeField, NotKeyable]
+		public VideoSourceMode videoSourceMode = VideoSourceMode.VideoClip;
+
+		[SerializeField, NotKeyable]
+		public string streamingAssetPath = ""; // relative to StreamingAssets, e.g., "Videos/video1.mp4"
 
         [SerializeField, NotKeyable]
         public bool mute = false;
@@ -43,6 +57,8 @@ namespace UnityEngine.Timeline
             VideoPlayableBehaviour playableBehaviour = playable.GetBehaviour();
 
             playableBehaviour.videoClip = videoClip;
+			playableBehaviour.videoSourceMode = videoSourceMode;
+			playableBehaviour.streamingAssetPath = streamingAssetPath;
             playableBehaviour.mute = mute;
             playableBehaviour.loop = loop;
             playableBehaviour.preloadTime = preloadTime;

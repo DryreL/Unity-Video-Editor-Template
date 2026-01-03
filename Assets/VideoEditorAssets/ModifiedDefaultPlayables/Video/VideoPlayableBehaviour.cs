@@ -20,6 +20,8 @@ namespace UnityEngine.Timeline
         public RawImage image;
 
 		public VideoClip videoClip;
+		public VideoSourceMode videoSourceMode = VideoSourceMode.VideoClip;
+		public string streamingAssetPath = "";
         public bool mute = false;
         public VideoAudioOutputMode audioOutputMode;
         public AudioSource audioSource;
@@ -137,8 +139,14 @@ namespace UnityEngine.Timeline
         }
 
         void Update() {
-            if (videoPlayer == null || videoClip == null)
+            if (videoPlayer == null)
                 return;
+
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
 
             if (endTime == -1) {
                 endTime = videoPlayer.length;
@@ -187,32 +195,48 @@ namespace UnityEngine.Timeline
 
         public void PrepareVideo()
         {
-            if (videoPlayer == null || renderTexture == null || videoClip == null || image == null)
+            if (videoPlayer == null || renderTexture == null || image == null)
                 return;
+
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
 
             videoPlayer.targetCameraAlpha = 0.0f;
 
-            if (videoPlayer.clip != videoClip)
+            if (videoSourceMode == VideoSourceMode.VideoClip && videoPlayer.clip != videoClip)
                 StopVideo();
+			else if (videoSourceMode == VideoSourceMode.StreamingAssetURL && videoPlayer.url != GetStreamingAssetUrl())
+				StopVideo();
 
             if (videoPlayer.isPrepared || preparing)
                 return;
 
-            videoPlayer.source = VideoSource.VideoClip;
-            videoPlayer.clip = videoClip;
+            videoPlayer.source = videoSourceMode == VideoSourceMode.VideoClip ? VideoSource.VideoClip : VideoSource.Url;
+            
+            if (videoSourceMode == VideoSourceMode.VideoClip)
+                videoPlayer.clip = videoClip;
+            else
+                videoPlayer.url = GetStreamingAssetUrl();
+
             videoPlayer.playOnAwake = false;
             videoPlayer.waitForFirstFrame = true;
 		    videoPlayer.isLooping = loop;
 
-            for (ushort i = 0; i < videoClip.audioTrackCount; ++i)
+            if (videoSourceMode == VideoSourceMode.VideoClip && videoClip != null)
             {
-                if (videoPlayer.audioOutputMode == VideoAudioOutputMode.Direct)
-                    videoPlayer.SetDirectAudioMute(i, mute || !Application.isPlaying);
-                else if (videoPlayer.audioOutputMode == VideoAudioOutputMode.AudioSource)
+                for (ushort i = 0; i < videoClip.audioTrackCount; ++i)
                 {
-                    AudioSource audioSource = videoPlayer.GetTargetAudioSource(i);
-                    if (audioSource != null)
-                        audioSource.mute = mute || !Application.isPlaying;
+                    if (videoPlayer.audioOutputMode == VideoAudioOutputMode.Direct)
+                        videoPlayer.SetDirectAudioMute(i, mute || !Application.isPlaying);
+                    else if (videoPlayer.audioOutputMode == VideoAudioOutputMode.AudioSource)
+                    {
+                        AudioSource audioSource = videoPlayer.GetTargetAudioSource(i);
+                        if (audioSource != null)
+                            audioSource.mute = mute || !Application.isPlaying;
+                    }
                 }
             }
 
@@ -221,10 +245,37 @@ namespace UnityEngine.Timeline
             preparing = true;
         }
 
+		private string GetStreamingAssetUrl()
+		{
+			if (string.IsNullOrEmpty(streamingAssetPath))
+				return "";
+
+			string streamingAssetsPath = Application.streamingAssetsPath;
+			string fullPath = Path.Combine(streamingAssetsPath, streamingAssetPath);
+
+			// Cross-platform path handling
+			#if UNITY_ANDROID && !UNITY_EDITOR
+			// On Android, we need to use the jar:file:// protocol
+			return "jar:file://" + fullPath;
+			#elif UNITY_WEBGL
+			// WebGL uses a different URL scheme
+			return fullPath;
+			#else
+			// Windows, macOS, Linux, iOS
+			return new System.Uri(fullPath).AbsoluteUri;
+			#endif
+		}
+
         public override void PrepareFrame(Playable playable, FrameData info)
 		{
-            if (videoPlayer == null || renderTexture == null || videoClip == null || image == null)
+            if (videoPlayer == null || renderTexture == null || image == null)
                 return;
+
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
 
             videoPlayer.timeReference = Application.isPlaying ? VideoTimeReference.ExternalTime :
                                                                 VideoTimeReference.Freerun;
@@ -246,8 +297,14 @@ namespace UnityEngine.Timeline
 
         public override void OnBehaviourPlay(Playable playable, FrameData info)
         {
-            if (videoPlayer == null || renderTexture == null || videoClip == null || image == null)
+            if (videoPlayer == null || renderTexture == null || image == null)
                 return;
+
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
 
             if (!playedOnce)
             {
@@ -258,8 +315,14 @@ namespace UnityEngine.Timeline
 
         public override void OnBehaviourPause(Playable playable, FrameData info)
         {
-            if (videoPlayer == null || renderTexture == null || videoClip == null || image == null)
+            if (videoPlayer == null || renderTexture == null || image == null)
                 return;
+
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
 
             if (Application.isPlaying)
                 PauseVideo();
@@ -276,38 +339,73 @@ namespace UnityEngine.Timeline
 
 		public override void ProcessFrame(Playable playable, FrameData info, object playerData)
 		{
-            if (videoPlayer == null || renderTexture == null || videoClip == null || image == null)
+            if (videoPlayer == null || renderTexture == null || image == null)
                 return;
+
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
 
             videoPlayer.targetCameraAlpha = info.weight;
 
 		    if (Application.isPlaying)
 		    {
-		        for (ushort i = 0; i < videoPlayer.clip.audioTrackCount; ++i)
-		        {
-		            if (videoPlayer.audioOutputMode == VideoAudioOutputMode.Direct)
-		                videoPlayer.SetDirectAudioVolume(i, info.weight);
-		            else if (videoPlayer.audioOutputMode == VideoAudioOutputMode.AudioSource)
-		            {
-		                AudioSource audioSource = videoPlayer.GetTargetAudioSource(i);
-		                if (audioSource != null)
-		                    audioSource.volume = info.weight;
-		            }
-		        }
+				if (videoSourceMode == VideoSourceMode.VideoClip && videoClip != null)
+				{
+					for (ushort i = 0; i < videoClip.audioTrackCount; ++i)
+					{
+						if (videoPlayer.audioOutputMode == VideoAudioOutputMode.Direct)
+							videoPlayer.SetDirectAudioVolume(i, info.weight);
+						else if (videoPlayer.audioOutputMode == VideoAudioOutputMode.AudioSource)
+						{
+							AudioSource audioSource = videoPlayer.GetTargetAudioSource(i);
+							if (audioSource != null)
+								audioSource.volume = info.weight;
+						}
+					}
+				}
 		    }
 		}
 
-		public override void OnGraphStart(Playable playable)
+        public override void OnGraphStart(Playable playable)
 		{
-            if (videoClip == null || image == null)
+            if (image == null)
                 return;
 
-            renderTexture = RenderTexture.GetTemporary((int)videoClip.width, (int)videoClip.height);
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
+
+			int width = 1920;
+			int height = 1080;
+
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip != null)
+			{
+				width = (int)videoClip.width;
+				height = (int)videoClip.height;
+			}
+			else if (videoSourceMode == VideoSourceMode.StreamingAssetURL)
+			{
+				// Default resolution for streaming assets (can be adjusted)
+				width = 1920;
+				height = 1080;
+			}
+
+            renderTexture = RenderTexture.GetTemporary(width, height);
             videoPlayer = image.gameObject.AddComponent<VideoPlayer>();
             videoPlayer.playOnAwake = false;
             videoPlayer.playbackSpeed = 1;
             videoPlayer.waitForFirstFrame = true;
-            videoPlayer.clip = videoClip;
+            
+            if (videoSourceMode == VideoSourceMode.VideoClip)
+                videoPlayer.clip = videoClip;
+            else
+                videoPlayer.url = GetStreamingAssetUrl();
+
             videoPlayer.renderMode = VideoRenderMode.RenderTexture;
             videoPlayer.targetTexture = renderTexture;
             image.texture = (Texture)renderTexture;
@@ -318,8 +416,14 @@ namespace UnityEngine.Timeline
 
 		public override void OnGraphStop(Playable playable)
 		{
-            if (videoClip == null || image == null)
+            if (image == null)
                 return;
+
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
 
             if (!Application.isPlaying)
             {
@@ -340,10 +444,14 @@ namespace UnityEngine.Timeline
         {
             StopVideo();
 
-            if (videoClip == null || image == null)
+            if (image == null)
                 return;
 
-            if (videoPlayer != null)
+			if (videoSourceMode == VideoSourceMode.VideoClip && videoClip == null)
+				return;
+
+			if (videoSourceMode == VideoSourceMode.StreamingAssetURL && string.IsNullOrEmpty(streamingAssetPath))
+				return;
             {
                 if (!Application.isPlaying)
                 {

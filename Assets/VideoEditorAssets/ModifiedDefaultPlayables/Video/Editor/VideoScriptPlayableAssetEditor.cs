@@ -34,14 +34,33 @@ public class VideoScriptPlayableAssetEditor : Editor
         EditorGUILayout.PropertyField(rawImage);
         GUILayout.Space(10);
 
-        VideoClip tempClip = videoAsset.videoClip;
-        GUILayout.Label("Assign a Video Clip to Play:", lStyle);
-        tempClip = (VideoClip)EditorGUILayout.ObjectField(tempClip, typeof(VideoClip), false);
-        if (tempClip != videoAsset.videoClip && tempClip != null)
+        // Video Source Mode Selection
+        GUILayout.Label("Video Source:", lStyle);
+        VideoSourceMode newMode = (VideoSourceMode)EditorGUILayout.EnumPopup("Source Mode", videoAsset.videoSourceMode);
+        videoAsset.videoSourceMode = newMode;
+        GUILayout.Space(10);
+
+        // Show VideoClip field only for VideoClip mode
+        if (videoAsset.videoSourceMode == VideoSourceMode.VideoClip)
         {
-            EditorUtility.DisplayDialog("New Clip Assigned", "Remember to make sure your video clip has 'Transcode' enabled in the Import Settings.", "Close");
+            VideoClip tempClip = videoAsset.videoClip;
+            GUILayout.Label("Assign a Video Clip to Play:", lStyle);
+            tempClip = (VideoClip)EditorGUILayout.ObjectField(tempClip, typeof(VideoClip), false);
+            if (tempClip != videoAsset.videoClip && tempClip != null)
+            {
+                EditorUtility.DisplayDialog("New Clip Assigned", "Remember to make sure your video clip has 'Transcode' enabled in the Import Settings.", "Close");
+            }
+            videoAsset.videoClip = tempClip;
         }
-        videoAsset.videoClip = tempClip;
+        // Show StreamingAsset path field only for URL mode
+        else if (videoAsset.videoSourceMode == VideoSourceMode.StreamingAssetURL)
+        {
+            GUILayout.Label("Streaming Asset URL:", lStyle);
+            EditorGUILayout.HelpBox("Enter the path relative to StreamingAssets folder.\nExample: Videos/video1.mp4", MessageType.Info);
+            videoAsset.streamingAssetPath = EditorGUILayout.TextField("Path (relative to StreamingAssets)", videoAsset.streamingAssetPath);
+            GUILayout.Space(10);
+        }
+
         videoAsset.loop = EditorGUILayout.Toggle("Loop Video?", videoAsset.loop);
         GUILayout.Space(10);
 
